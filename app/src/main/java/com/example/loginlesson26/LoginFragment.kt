@@ -26,22 +26,15 @@ class LoginFragment : Fragment() {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
 
         binding.buttonSignIn.setOnClickListener {
-            var edUserName = binding.editTextLogin.text.toString()
-            var edPassword = binding.editTextPassword.text.toString()
+            val edUserName = binding.editTextLogin.text.toString()
+            val edPassword = binding.editTextPassword.text.toString()
             if (check(edUserName, edPassword)) {
-                viewModel.userLiveData.observe(viewLifecycleOwner, {
-                    it.userName = edUserName
-                    it.password = edPassword
-
-                })
-                viewModel.autorization()
-
+                viewModel.onSignInClick(edUserName, edPassword)
             } else {
                 Toast.makeText(requireContext(), "Incorrect login or password", Toast.LENGTH_SHORT)
                     .show()
             }
         }
-
         return binding.root
     }
 
