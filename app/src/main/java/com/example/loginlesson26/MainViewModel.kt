@@ -1,6 +1,6 @@
 package com.example.loginlesson26
 
-import android.util.Log
+
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
@@ -59,7 +59,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun getTracks() {
+    private fun getTracks() {
         scope.launch {
             val urlAdressGetTracks =
                 "https://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=$APIKEY&format=json"

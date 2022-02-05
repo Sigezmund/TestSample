@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         onLogoutClick()
-        return true;
+        return true
     }
 
     private fun onLogoutClick() {

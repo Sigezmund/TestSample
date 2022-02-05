@@ -3,7 +3,7 @@ package com.example.loginlesson26
 
 import android.content.Context
 
-class CustomPreference(private val context: Context) {
+class CustomPreference(context: Context) {
     private val prefs = context.getSharedPreferences("com.example.login", Context.MODE_PRIVATE)
 
     var login: String = ""
@@ -22,10 +22,6 @@ class CustomPreference(private val context: Context) {
             field = value
             prefs.edit().putString(PASSWORD, value).apply()
         }
-
-    fun clear(field: String) {
-        prefs.edit().remove(field).apply()
-    }
 
     companion object {
         private const val LOGIN = "login"

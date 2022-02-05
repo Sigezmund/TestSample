@@ -57,7 +57,7 @@ class LoginFragment : Fragment() {
         return binding.root
     }
 
-    fun check(username: String, password: String): Boolean {
+    private fun check(username: String, password: String): Boolean {
         return username == "marynanavumenka" && password == "jctkmh8d!"
     }
 
