@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center"
     android:orientation="vertical">
 
@@ -20,40 +21,51 @@
             android:orientation="vertical"
             android:padding="@dimen/indent_x2">
 
-            <EditText
-                android:id="@+id/editTextLogin"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:hint="@string/hint_login"
-                android:importantForAutofill="no"
-                android:inputType="text" />
+                android:layout_marginBottom="@dimen/indent_x1">
 
-            <EditText
-                android:id="@+id/editTextPassword"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:hint="@string/hint_login"
+                    android:inputType="textVisiblePassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:hint="@string/hint_password"
-                android:importantForAutofill="no"
-                android:inputType="textPassword" />
+                android:layout_marginBottom="@dimen/indent_x1"
+                app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/loginBackgroundColor">
 
-            <Button
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:hint="@string/hint_password"
+                    android:inputType="textPassword" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/buttonSignIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/indent_x1"
-                android:background="@color/purple_200"
+                android:background="@color/loginBackgroundColor"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/sign_in_btn_text"
                 android:textColor="#000000"
                 tools:ignore="TextContrastCheck" />
 
-            <Button
-                android:id="@+id/button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Button" />
+
 
         </LinearLayout>
     </FrameLayout>

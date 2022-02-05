@@ -15,9 +15,9 @@ class MainViewModel : ViewModel() {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val okHttpClient = OkHttpClient.Builder().build()
     private val gson = Gson()
+    val userLiveData = MutableLiveData<User>()
     val tracksLiveData = MutableLiveData<List<TopTrack>>()
     val authIsSuccessful = MutableLiveData<Boolean>()
-    val isErrorMessageVisible = MutableLiveData<Boolean>()
 
     init {
         getTracks()
@@ -33,18 +33,14 @@ class MainViewModel : ViewModel() {
                 val digest: MessageDigest = MessageDigest.getInstance("MD5")
                 digest.update(apiSignature.toByteArray(charset("UTF-8")))
                 val messageDigest: ByteArray = digest.digest()
-
                 for (aMessageDigest in messageDigest) {
                     var h = Integer.toHexString(0xFF and aMessageDigest.toInt())
                     while (h.length < 2) h = "0$h"
                     hexString.append(h)
                 }
-
                 val urlParameter =
-                    "method=auth.getMobileSession&api_key=" + APIKEY + "&password=" + password + "&username=" + login + "&api_sig=" + hexString
-                val urlAdress = "https://ws.audioscrobbler.com/2.0/?" + urlParameter
-
-
+                    "method=auth.getMobileSession&api_key=$APIKEY&password=$password&username=$login&api_sig=$hexString"
+                val urlAdress = "https://ws.audioscrobbler.com/2.0/?$urlParameter"
                 val response = withContext(Dispatchers.IO) {
                     okHttpClient
                         .newCall(
@@ -55,40 +51,10 @@ class MainViewModel : ViewModel() {
                         ).execute()
                 }
                 authIsSuccessful.value = response.body.toString().contains("ok")
-
-
-//                val urlAdressGetTracks =
-//                    "https://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=$APIKEY&format=json"
-//
-//
-//                val responseTrack = withContext(Dispatchers.IO) {
-//                    okHttpClient
-//                        .newCall(
-//                            Request.Builder()
-//                                .url(urlAdressGetTracks)
-//                                .build()
-//                        ).execute()
-//                }
-//                val jsonString = responseTrack.body?.string().orEmpty()
-//                val json = gson.fromJson(jsonString, TrackDTO::class.java)
-//                tracksLiveData.value = json.tracks?.track?.map {
-//                    TopTrack(
-//                    artist = it.artist,
-//                    duration = it.duration,
-//                    image= it.image,
-//                    listeners= it.listeners,
-//                    mbid=it.mbid,
-//                    name=it.name,
-//                    playcount = it.playcount,
-//                    streamable = it.streamable,
-//                    url=it.url
-//                    )
-//                }.orEmpty()
-
-
-            } catch (ex: Exception) {
+                userLiveData.value = User(login, password)
+            } catch (e: Exception) {
                 authIsSuccessful.value = false
-                Log.d("autherror", ex.toString())
+                e.printStackTrace()
             }
         }
     }
@@ -97,7 +63,6 @@ class MainViewModel : ViewModel() {
         scope.launch {
             val urlAdressGetTracks =
                 "https://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=$APIKEY&format=json"
-            isErrorMessageVisible.value = false
             try {
                 val responseTrack = withContext(Dispatchers.IO) {
                     okHttpClient
@@ -107,7 +72,6 @@ class MainViewModel : ViewModel() {
                                 .build()
                         ).execute()
                 }
-
                 val jsonString = responseTrack.body?.string().orEmpty()
                 val json = gson.fromJson(jsonString, TrackDTO::class.java)
                 tracksLiveData.value = json.tracks?.track?.map {
@@ -123,11 +87,8 @@ class MainViewModel : ViewModel() {
                         url = it.url
                     )
                 }.orEmpty()
-
-            } catch (e: java.lang.Exception) {
-                if (tracksLiveData.value.isNullOrEmpty()) {
-                    isErrorMessageVisible.value = true
-                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

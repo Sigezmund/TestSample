@@ -1,8 +1,6 @@
 package com.example.loginlesson26
 
-import com.google.gson.annotations.SerializedName
-
-data class TopTrack (
+data class TopTrack(
     val artist: Artist? = null,
     val duration: String? = null,
     val image: List<Image>? = null,
