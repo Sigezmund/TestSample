@@ -36,7 +36,7 @@
                 android:fontFamily="sans-serif"
                 android:hint="@string/hint_password"
                 android:importantForAutofill="no"
-                android:inputType="text" />
+                android:inputType="textPassword" />
 
             <Button
                 android:id="@+id/buttonSignIn"
@@ -48,6 +48,12 @@
                 android:text="@string/sign_in_btn_text"
                 android:textColor="#000000"
                 tools:ignore="TextContrastCheck" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Button" />
 
         </LinearLayout>
     </FrameLayout>

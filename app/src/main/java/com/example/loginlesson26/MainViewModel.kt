@@ -3,6 +3,7 @@ package com.example.loginlesson26
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,9 +14,14 @@ import java.security.MessageDigest
 class MainViewModel : ViewModel() {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val okHttpClient = OkHttpClient.Builder().build()
-
-
+    private val gson = Gson()
+    val tracksLiveData = MutableLiveData<List<TopTrack>>()
     val authIsSuccessful = MutableLiveData<Boolean>()
+    val isErrorMessageVisible = MutableLiveData<Boolean>()
+
+    init {
+        getTracks()
+    }
 
     fun onSignInClick(login: String, password: String) {
 
@@ -36,7 +42,8 @@ class MainViewModel : ViewModel() {
 
                 val urlParameter =
                     "method=auth.getMobileSession&api_key=" + APIKEY + "&password=" + password + "&username=" + login + "&api_sig=" + hexString
-                val urlAdress = "https://ws.audioscrobbler.com/2.0/?$urlParameter"
+                val urlAdress = "https://ws.audioscrobbler.com/2.0/?" + urlParameter
+
 
                 val response = withContext(Dispatchers.IO) {
                     okHttpClient
@@ -48,18 +55,85 @@ class MainViewModel : ViewModel() {
                         ).execute()
                 }
                 authIsSuccessful.value = response.body.toString().contains("ok")
-                Log.d("error1", response.body.toString())
+
+
+//                val urlAdressGetTracks =
+//                    "https://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=$APIKEY&format=json"
+//
+//
+//                val responseTrack = withContext(Dispatchers.IO) {
+//                    okHttpClient
+//                        .newCall(
+//                            Request.Builder()
+//                                .url(urlAdressGetTracks)
+//                                .build()
+//                        ).execute()
+//                }
+//                val jsonString = responseTrack.body?.string().orEmpty()
+//                val json = gson.fromJson(jsonString, TrackDTO::class.java)
+//                tracksLiveData.value = json.tracks?.track?.map {
+//                    TopTrack(
+//                    artist = it.artist,
+//                    duration = it.duration,
+//                    image= it.image,
+//                    listeners= it.listeners,
+//                    mbid=it.mbid,
+//                    name=it.name,
+//                    playcount = it.playcount,
+//                    streamable = it.streamable,
+//                    url=it.url
+//                    )
+//                }.orEmpty()
 
 
             } catch (ex: Exception) {
                 authIsSuccessful.value = false
-                Log.d("error2", ex.toString())
+                Log.d("autherror", ex.toString())
+            }
+        }
+    }
+
+    fun getTracks() {
+        scope.launch {
+            val urlAdressGetTracks =
+                "https://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=$APIKEY&format=json"
+            isErrorMessageVisible.value = false
+            try {
+                val responseTrack = withContext(Dispatchers.IO) {
+                    okHttpClient
+                        .newCall(
+                            Request.Builder()
+                                .url(urlAdressGetTracks)
+                                .build()
+                        ).execute()
+                }
+
+                val jsonString = responseTrack.body?.string().orEmpty()
+                val json = gson.fromJson(jsonString, TrackDTO::class.java)
+                tracksLiveData.value = json.tracks?.track?.map {
+                    TopTrack(
+                        artist = it.artist,
+                        duration = it.duration,
+                        image = it.image,
+                        listeners = it.listeners,
+                        mbid = it.mbid,
+                        name = it.name,
+                        playcount = it.playcount,
+                        streamable = it.streamable,
+                        url = it.url
+                    )
+                }.orEmpty()
+
+            } catch (e: java.lang.Exception) {
+                if (tracksLiveData.value.isNullOrEmpty()) {
+                    isErrorMessageVisible.value = true
+                }
             }
         }
     }
 
     companion object {
-        val APIKEY: String = "de2b582fe3d72b0e79b3ea5223800054"
-        val APISIG: String = "060a6afbf90488af42d093118b6b4909"
+        private const val APIKEY: String = "de2b582fe3d72b0e79b3ea5223800054"
+        private const val APISIG: String = "060a6afbf90488af42d093118b6b4909"
     }
 }

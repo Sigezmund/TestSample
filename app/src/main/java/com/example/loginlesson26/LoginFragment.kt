@@ -35,11 +35,36 @@ class LoginFragment : Fragment() {
                     .show()
             }
         }
+        viewModel.authIsSuccessful.observe(viewLifecycleOwner) {
+            if (it) {
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.fragmentContainer, TrackListFragment.newInstance())
+                    .commit()
+            }
+        }
+        binding.button.setOnClickListener {
+            requireActivity().supportFragmentManager
+                .beginTransaction()
+                .addToBackStack(null)
+                .replace(R.id.fragmentContainer, TrackListFragment.newInstance())
+                .commit()
+        }
+
+
+
         return binding.root
     }
 
     fun check(username: String, password: String): Boolean {
         return username == "marynanavumenka" && password == "jctkmh8d!"
+    }
+
+    companion object {
+        fun newInstance(): LoginFragment {
+            return LoginFragment()
+        }
     }
 
 }
