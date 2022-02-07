@@ -1,8 +1,10 @@
 package com.example.loginlesson26
 
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.loginlesson26.data.TopTrackEntity
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,16 +13,17 @@ import kotlinx.coroutines.withContext
 import okhttp3.*
 import java.security.MessageDigest
 
-class MainViewModel : ViewModel() {
+class LoginViewModel(
+    private val repositories: Repositories
+) : ViewModel() {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val okHttpClient = OkHttpClient.Builder().build()
-    private val gson = Gson()
     val userLiveData = MutableLiveData<User>()
-    val tracksLiveData = MutableLiveData<List<TopTrack>>()
+    val tracksLiveData = MutableLiveData<List<TrackEntity>>()
     val authIsSuccessful = MutableLiveData<Boolean>()
 
     init {
-        getTracks()
+        loadTrack()
     }
 
     fun onSignInClick(login: String, password: String) {
@@ -52,6 +55,7 @@ class MainViewModel : ViewModel() {
                 }
                 authIsSuccessful.value = response.body.toString().contains("ok")
                 userLiveData.value = User(login, password)
+
             } catch (e: Exception) {
                 authIsSuccessful.value = false
                 e.printStackTrace()
@@ -59,34 +63,13 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun getTracks() {
+    fun loadTrack() {
         scope.launch {
-            val urlAdressGetTracks =
-                "https://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=$APIKEY&format=json"
             try {
-                val responseTrack = withContext(Dispatchers.IO) {
-                    okHttpClient
-                        .newCall(
-                            Request.Builder()
-                                .url(urlAdressGetTracks)
-                                .build()
-                        ).execute()
+                val tracks = withContext(Dispatchers.IO) {
+                    repositories.getTrack()
                 }
-                val jsonString = responseTrack.body?.string().orEmpty()
-                val json = gson.fromJson(jsonString, TrackDTO::class.java)
-                tracksLiveData.value = json.tracks?.track?.map {
-                    TopTrack(
-                        artist = it.artist,
-                        duration = it.duration,
-                        image = it.image,
-                        listeners = it.listeners,
-                        mbid = it.mbid,
-                        name = it.name,
-                        playcount = it.playcount,
-                        streamable = it.streamable,
-                        url = it.url
-                    )
-                }.orEmpty()
+                tracksLiveData.value = tracks
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -94,7 +77,11 @@ class MainViewModel : ViewModel() {
     }
 
     companion object {
-        private const val APIKEY: String = "de2b582fe3d72b0e79b3ea5223800054"
-        private const val APISIG: String = "060a6afbf90488af42d093118b6b4909"
+        const val APIKEY: String = "de2b582fe3d72b0e79b3ea5223800054"
+        const val APISIG: String = "060a6afbf90488af42d093118b6b4909"
     }
 }
+
+
+
+

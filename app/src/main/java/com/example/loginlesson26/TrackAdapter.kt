@@ -8,7 +8,7 @@ import com.example.loginlesson26.databinding.ItemTrackBinding
 
 class TrackAdapter : RecyclerView.Adapter<TrackAdapter.Holder>() {
 
-    var tracksLiveData: List<TopTrack> = emptyList()
+    var tracks: List<TrackEntity> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -22,23 +22,22 @@ class TrackAdapter : RecyclerView.Adapter<TrackAdapter.Holder>() {
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        val nameTrack = tracksLiveData[position]
+        val nameTrack = tracks[position]
 
         with(holder.binding) {
             holder.itemView.tag = nameTrack
-            val image = nameTrack.image?.get(2)
-            val urlImage = image?.text
+
             Glide.with(photoImageView.context)
-                .load(urlImage)
+                .load(nameTrack.image)
                 .circleCrop()
                 .into(photoImageView)
 
-            artistNameTextView.text = nameTrack.artist?.name.toString()
+            artistNameTextView.text = nameTrack.artist
             nameTrackTextView.text = nameTrack.name
         }
     }
 
-    override fun getItemCount(): Int = tracksLiveData.size
+    override fun getItemCount(): Int = tracks.size
 
     class Holder(
         val binding: ItemTrackBinding

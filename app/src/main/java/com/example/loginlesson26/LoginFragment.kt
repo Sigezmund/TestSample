@@ -6,17 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import com.example.loginlesson26.data.AppDatabase
 import com.example.loginlesson26.databinding.FragmentLoginBinding
 
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel by viewModelCreator {
+        LoginViewModel(
+            Repositories(
+                AppDatabase.build(
+                    requireContext()
+                )
+            )
+        )
+    }
     val preferences by lazy {
         CustomPreference(requireContext())
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,16 +41,19 @@ class LoginFragment : Fragment() {
                     .show()
             }
         }
+
         viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 preferences.login = user.userName
                 preferences.password = user.password
             }
         }
+
         viewModel.authIsSuccessful.observe(viewLifecycleOwner) {
             if (it) {
                 preferences.login = ""
                 preferences.password = ""
+
                 requireActivity().supportFragmentManager
                     .beginTransaction()
                     .addToBackStack(null)
