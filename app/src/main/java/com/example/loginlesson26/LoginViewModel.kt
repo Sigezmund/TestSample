@@ -6,10 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.loginlesson26.data.TopTrackEntity
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import okhttp3.*
 import java.security.MessageDigest
 
@@ -74,6 +71,11 @@ class LoginViewModel(
                 e.printStackTrace()
             }
         }
+    }
+
+    override fun onCleared() {
+        scope.cancel()
+        super.onCleared()
     }
 
     companion object {

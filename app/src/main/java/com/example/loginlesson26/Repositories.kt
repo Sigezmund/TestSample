@@ -33,7 +33,6 @@ class Repositories(
             val trackEntity = json.tracks?.track?.map {
 
                 TrackEntity(
-                    id = it.hashCode(),
                     artist = it.artist?.name.orEmpty(),
                     image = it.image?.get(1)?.text.orEmpty(),
                     name = it.name.orEmpty(),
@@ -41,7 +40,6 @@ class Repositories(
             }.orEmpty()
             val topTrackEntity = trackEntity.map {
                 TopTrackEntity(
-                    id = it.id,
                     name = it.name,
                     artist = it.artist,
                     image = it.image
@@ -53,7 +51,6 @@ class Repositories(
             e.printStackTrace()
             val trackAppDatabase = appDatabase.getTopTrackEntity().getTrack().map {
                 TrackEntity(
-                    id = it.id,
                     name = it.name,
                     artist = it.artist,
                     image = it.image

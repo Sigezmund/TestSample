@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
 data class TopTrackEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Int = 1,
+    var id: Int = 0,
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "artist")
