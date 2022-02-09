@@ -3,9 +3,12 @@ package com.example.loginlesson26
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.work.*
 import com.example.loginlesson26.databinding.ActivityMainBinding
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +34,21 @@ class MainActivity : AppCompatActivity() {
                 .add(R.id.fragmentContainer, TrackListFragment.newInstance())
                 .commit()
         }
+        val periodicConstraints: Constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val periodicWorker= PeriodicWorkRequestBuilder<RefreshDataWorker>(12,TimeUnit.HOURS)
+            .addTag("PeriodicWorker")
+            .setConstraints(periodicConstraints)
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+            .build()
+
+        WorkManager.getInstance(this).enqueue(periodicWorker)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -51,4 +69,5 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragmentContainer, LoginFragment.newInstance())
             .commit()
     }
+
 }
