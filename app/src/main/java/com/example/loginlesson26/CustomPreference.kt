@@ -2,6 +2,28 @@ package com.example.loginlesson26
 
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
+import com.example.loginlesson26.domain.User
+
+class LoginManager(private val preference: CustomPreference) {
+
+    val isLoggedInLiveData = MutableLiveData<Boolean>()
+
+    val isLoggedIn: Boolean
+        get() = isLoggedInLiveData.value ?: false
+
+    fun login(user: User) {
+        preference.login = user.userName
+        preference.password = user.password
+
+    }
+
+    fun logout() {
+        preference.login = ""
+        preference.password = ""
+    }
+
+}
 
 class CustomPreference(context: Context) {
     private val prefs = context.getSharedPreferences("com.example.login", Context.MODE_PRIVATE)

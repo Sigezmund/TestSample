@@ -1,4 +1,4 @@
-package com.example.loginlesson26
+package com.example.loginlesson26.domain
 
 data class TrackEntity(
     val artist: String,

@@ -1,4 +1,4 @@
-package com.example.loginlesson26
+package com.example.loginlesson26.domain
 
 class User(
     var userName: String,

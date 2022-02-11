@@ -1,4 +1,4 @@
-package com.example.loginlesson26
+package com.example.loginlesson26.presentation
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,7 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.loginlesson26.CustomPreference
+import com.example.loginlesson26.LoginManager
+import com.example.loginlesson26.R
 import com.example.loginlesson26.data.AppDatabase
+import com.example.loginlesson26.data.Repositories
 import com.example.loginlesson26.databinding.FragmentLoginBinding
 
 
@@ -21,9 +25,9 @@ class LoginFragment : Fragment() {
             )
         )
     }
-    val preferences by lazy {
-        CustomPreference(requireContext())
-    }
+
+    private val preferences = CustomPreference(requireContext())
+    val loginManager = LoginManager(preferences)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,41 +38,34 @@ class LoginFragment : Fragment() {
         binding.buttonSignIn.setOnClickListener {
             val edUserName = binding.editTextLogin.text.toString()
             val edPassword = binding.editTextPassword.text.toString()
-            if (check(edUserName, edPassword)) {
-                viewModel.onSignInClick(edUserName, edPassword)
-            } else {
-                Toast.makeText(requireContext(), "Incorrect login or password", Toast.LENGTH_SHORT)
-                    .show()
-            }
+            viewModel.onSignInClick(edUserName, edPassword)
+        }
+
+        binding.buttonLogout.setOnClickListener {
+            loginManager.logout()
+            loginManager.isLoggedInLiveData.value=false
         }
 
         viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
             if (user != null) {
-                preferences.login = user.userName
-                preferences.password = user.password
+                loginManager.login(user)
+                loginManager.isLoggedInLiveData.value=true
             }
         }
 
         viewModel.authIsSuccessful.observe(viewLifecycleOwner) {
             if (it) {
-                preferences.login = ""
-                preferences.password = ""
-
                 requireActivity().supportFragmentManager
                     .beginTransaction()
                     .addToBackStack(null)
                     .replace(R.id.fragmentContainer, TrackListFragment.newInstance())
                     .commit()
             } else {
-                Toast.makeText(requireContext(), "Network Error", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), R.string.error_auth, Toast.LENGTH_SHORT)
                     .show()
             }
         }
         return binding.root
-    }
-
-    private fun check(username: String, password: String): Boolean {
-        return username == "marynanavumenka" && password == "jctkmh8d!"
     }
 
     companion object {
