@@ -24,8 +24,8 @@ class LoginViewModel(
                     repositories.getAuthorization(login, password)
                 }
                 authIsSuccessful.value = resultAuth
-                if (resultAuth) {
-                    userLiveData.value = User(login, password)
+                if(resultAuth){
+                userLiveData.value = User(login, password)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

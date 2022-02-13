@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.graphics.translationMatrix
 import androidx.fragment.app.Fragment
 import com.example.loginlesson26.CustomPreference
 import com.example.loginlesson26.LoginManager
@@ -26,8 +27,12 @@ class LoginFragment : Fragment() {
         )
     }
 
-    private val preferences = CustomPreference(requireContext())
-    val loginManager = LoginManager(preferences)
+    private val preferences by lazy {
+        CustomPreference(requireContext())
+    }
+    private val loginManager by lazy {
+        LoginManager(preferences)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,19 +47,19 @@ class LoginFragment : Fragment() {
         }
 
         binding.buttonLogout.setOnClickListener {
+            binding.editTextLogin.text=null
+            binding.editTextPassword.text=null
             loginManager.logout()
-            loginManager.isLoggedInLiveData.value=false
         }
 
         viewModel.userLiveData.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 loginManager.login(user)
-                loginManager.isLoggedInLiveData.value=true
             }
         }
 
         viewModel.authIsSuccessful.observe(viewLifecycleOwner) {
-            if (it) {
+            if (it==true) {
                 requireActivity().supportFragmentManager
                     .beginTransaction()
                     .addToBackStack(null)

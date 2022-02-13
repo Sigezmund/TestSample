@@ -15,12 +15,13 @@ class LoginManager(private val preference: CustomPreference) {
     fun login(user: User) {
         preference.login = user.userName
         preference.password = user.password
-
+        isLoggedInLiveData.value=true
     }
 
     fun logout() {
         preference.login = ""
         preference.password = ""
+        isLoggedInLiveData.value=false
     }
 
 }

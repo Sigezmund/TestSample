@@ -2,6 +2,7 @@ package com.example.loginlesson26.data
 
 
 import android.bluetooth.le.BluetoothLeScanner
+import android.util.Log
 import com.example.loginlesson26.TrackDTO
 import com.example.loginlesson26.domain.TrackEntity
 import com.google.gson.Gson
@@ -20,7 +21,6 @@ class Repositories(
     private val appDatabase: AppDatabase
 ) {
     private val trackService: TrackService
-    private val scope = CoroutineScope(Dispatchers.Main)
     private val okHttpClient = OkHttpClient.Builder().build()
     private val gson = Gson()
 
@@ -33,7 +33,6 @@ class Repositories(
     }
 
     suspend fun getAuthorization(login: String, password: String): Boolean {
-
         try {
             val apiSignature =
                 "api_key" + APIKEY + "methodauth.getMobileSessionpassword" + password + "username" + login + APISIG
@@ -58,12 +57,12 @@ class Repositories(
                             .build()
                     ).execute()
             }
-//            authIsSuccessful.value = response.body.toString().contains("ok")
-//            userLiveData.value = User(login, password)
-            return true
+            val result=withContext(Dispatchers.IO){
+                response.body?.string()
+            }
+            return result.toString().contains("ok")
 
         } catch (e: Exception) {
-//            authIsSuccessful.value = false
             e.printStackTrace()
             return false
         }
@@ -102,28 +101,16 @@ class Repositories(
         }
     }
 
-    fun saveTrackInBackground() {
+    suspend fun saveTrackInBackground() {
         try {
-            val urlAdressGetTracks =
-                "https://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=${APIKEY}&format=json"
-            val responseTrack =
-                okHttpClient
-                    .newCall(
-                        Request.Builder()
-                            .url(urlAdressGetTracks)
-                            .build()
-                    ).execute()
-            val jsonString = responseTrack.body?.string().orEmpty()
-            val json = gson.fromJson(jsonString, TrackDTO::class.java)
-
-            val trackEntity = json.tracks?.track?.map {
-
-                TrackEntity(
-                    artist = it.artist?.name.orEmpty(),
-                    image = it.image?.get(1)?.text.orEmpty(),
-                    name = it.name.orEmpty(),
-                )
-            }.orEmpty()
+            val trackEntity = trackService.loadTrack()
+                .tracks?.track?.map {
+                    TrackEntity(
+                        artist = it.artist?.name.orEmpty(),
+                        image = it.image?.get(1)?.text.orEmpty(),
+                        name = it.name.orEmpty(),
+                    )
+                }.orEmpty()
             val topTrackEntity = trackEntity.map {
                 TopTrackEntity(
                     name = it.name,
