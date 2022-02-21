@@ -1,12 +1,8 @@
 package com.example.loginlesson26.data
 
 
-import android.bluetooth.le.BluetoothLeScanner
-import android.util.Log
-import com.example.loginlesson26.TrackDTO
 import com.example.loginlesson26.domain.TrackEntity
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -17,9 +13,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.security.MessageDigest
 
 
-class Repositories(
+interface LoginRepository {
+    suspend fun getAuthorization(login: String, password: String): Boolean
+    suspend fun getTrack(): List<TrackEntity>
+}
+
+class LoginRepositoryImpl(
     private val appDatabase: AppDatabase
-) {
+) : LoginRepository {
     private val trackService: TrackService
     private val okHttpClient = OkHttpClient.Builder().build()
     private val gson = Gson()
@@ -32,7 +33,7 @@ class Repositories(
         trackService = retrofit.create(TrackService::class.java)
     }
 
-    suspend fun getAuthorization(login: String, password: String): Boolean {
+    override suspend fun getAuthorization(login: String, password: String): Boolean {
         try {
             val apiSignature =
                 "api_key" + APIKEY + "methodauth.getMobileSessionpassword" + password + "username" + login + APISIG
@@ -57,7 +58,7 @@ class Repositories(
                             .build()
                     ).execute()
             }
-            val result=withContext(Dispatchers.IO){
+            val result = withContext(Dispatchers.IO) {
                 response.body?.string()
             }
             return result.toString().contains("ok")
@@ -69,7 +70,7 @@ class Repositories(
     }
 
 
-    suspend fun getTrack(): List<TrackEntity> {
+    override suspend fun getTrack(): List<TrackEntity> {
         try {
             val trackEntity = trackService.loadTrack()
                 .tracks?.track?.map {

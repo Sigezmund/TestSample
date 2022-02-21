@@ -5,27 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.graphics.translationMatrix
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.loginlesson26.CustomPreference
 import com.example.loginlesson26.LoginManager
 import com.example.loginlesson26.R
-import com.example.loginlesson26.data.AppDatabase
-import com.example.loginlesson26.data.Repositories
 import com.example.loginlesson26.databinding.FragmentLoginBinding
 
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
-    private val viewModel by viewModelCreator {
-        LoginViewModel(
-            Repositories(
-                AppDatabase.build(
-                    requireContext()
-                )
-            )
-        )
-    }
+    lateinit var viewModelFactory: ViewModelFactory<LoginViewModel>
+    private val viewModel: LoginViewModel by viewModels(
+        factoryProducer = { viewModelFactory }
+    )
 
     private val preferences by lazy {
         CustomPreference(requireContext())
@@ -47,8 +40,8 @@ class LoginFragment : Fragment() {
         }
 
         binding.buttonLogout.setOnClickListener {
-            binding.editTextLogin.text=null
-            binding.editTextPassword.text=null
+            binding.editTextLogin.text = null
+            binding.editTextPassword.text = null
             loginManager.logout()
         }
 
@@ -59,7 +52,7 @@ class LoginFragment : Fragment() {
         }
 
         viewModel.authIsSuccessful.observe(viewLifecycleOwner) {
-            if (it==true) {
+            if (it == true) {
                 requireActivity().supportFragmentManager
                     .beginTransaction()
                     .addToBackStack(null)

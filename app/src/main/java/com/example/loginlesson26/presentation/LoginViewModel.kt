@@ -3,29 +3,28 @@ package com.example.loginlesson26.presentation
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.loginlesson26.data.Repositories
-import com.example.loginlesson26.domain.TrackEntity
+import com.example.loginlesson26.data.LoginRepository
 import com.example.loginlesson26.domain.User
 import kotlinx.coroutines.*
-import okhttp3.*
-import java.security.MessageDigest
 
 class LoginViewModel(
-    private val repositories: Repositories
+    private val repositories: LoginRepository,
+    private val bgDispatcher: CoroutineDispatcher,
+    private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(mainDispatcher)
     val userLiveData = MutableLiveData<User>()
     val authIsSuccessful = MutableLiveData<Boolean>()
 
     fun onSignInClick(login: String, password: String) {
         scope.launch {
             try {
-                val resultAuth = withContext(Dispatchers.IO) {
+                val resultAuth = withContext(bgDispatcher) {
                     repositories.getAuthorization(login, password)
                 }
                 authIsSuccessful.value = resultAuth
-                if(resultAuth){
-                userLiveData.value = User(login, password)
+                if (resultAuth) {
+                    userLiveData.value = User(login, password)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
